@@ -24,8 +24,8 @@
  * SUCH DAMAGE.
  *
  * $HeadURL: svn+ssh://moon.behrens/var/repos/sources/cygwinNativeWrapper/cygnative.c $
- * $LastChangedDate: 2009-06-26 10:43:38 +0200 (Fr, 26 Jun 2009) $
- * $LastChangedRevision: 147 $
+ * $LastChangedDate: 2009-08-18 08:21:46 +0200 (Di, 18 Aug 2009) $
+ * $LastChangedRevision: 157 $
  * $LastChangedBy: frank $
  */
 
@@ -46,12 +46,15 @@
 #define __unused        __attribute__((__unused__))
 #endif
 
+#define BUFSIZE			(100*1024)
+#define MAXCMDLINESIZE	(32*1024)
+
+
 static HANDLE client_r;
 static HANDLE client_w;
 static DWORD retcode;
 static volatile int doRun = TRUE;
-
-#define BUFSIZE (100*1024)
+static char cmdline[MAXCMDLINESIZE];
 
 
 static void 
@@ -224,7 +227,6 @@ main(int argc, char *argv[]) {
 	HANDLE newstderr;
     PROCESS_INFORMATION procinfo; 
     STARTUPINFO startinfo;
-	char cmdline[MAX_PATH];
 
 	SECURITY_ATTRIBUTES saAttr; 
 	// Set the bInheritHandle flag so pipe handles are inherited. 
