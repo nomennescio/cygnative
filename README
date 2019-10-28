@@ -2,7 +2,7 @@ cygnative.exe
 
 Copyright (c) 2009 Frank Behrens <frank@pinky.sax.de>
 All rights reserved.
-$Id: README 123 2009-03-12 20:32:26Z frank $
+$Id: README 124 2009-03-12 20:57:46Z frank $
 
 Cygnative.exe is a wrapper for cygwin programs which call native Win32
 programs with stdin and/or stdout handle redirected. Without cygnative.exe it 

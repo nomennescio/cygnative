@@ -24,8 +24,8 @@
  * SUCH DAMAGE.
  *
  * $HeadURL: svn+ssh://moon.behrens/var/repos/sources/cygwinNativeWrapper/cygnative.c $
- * $LastChangedDate: 2009-03-12 21:15:34 +0100 (Do, 12 Mrz 2009) $
- * $LastChangedRevision: 122 $
+ * $LastChangedDate: 2009-06-26 10:43:38 +0200 (Fr, 26 Jun 2009) $
+ * $LastChangedRevision: 147 $
  * $LastChangedBy: frank $
  */
 
@@ -36,6 +36,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <io.h>
+#include <errno.h>
 #if PTHREAD
 #include <pthread.h>
 #include <signal.h>
@@ -98,8 +99,20 @@ clientReaderThread(LPVOID lpParameter __unused) {
 		boolean fSuccess = ReadFile(client_r, buf, sizeof(buf), &bytes, NULL); 
 	    if (!fSuccess || bytes <= 0 || GetLastError() == ERROR_HANDLE_EOF) 
 			break;
-		ssize_t wbytes = write(STDOUT_FILENO, buf, bytes);
+		// with cygwin we may get unexpected EAGAIN errors on write call, thanks to Ilya Basin for research
+		ssize_t wbytes;
+		int maxRepeat = 100;
+		int errNo = 0;
+		do {
+			wbytes = write(STDOUT_FILENO, buf, bytes);
+			if (wbytes == -1) {
+				errNo = errno;
+				usleep(50);	// give parent process time to process data
+			}
+		} while (wbytes == -1 && errNo == EAGAIN && --maxRepeat > 0);
+
 		if (wbytes != (ssize_t)bytes) {
+			perror("could not write to parent");
 			break;
 		}
 	}
